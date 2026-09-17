@@ -22,7 +22,9 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
 3. Generate a bcrypt hash with `htpasswd -nB reader` (interactive password
    prompt). Copy the hash after `reader:` into `READER_PASSWORD_HASH`, preserving
    the single quotes. Keep `.env` private and save the password in your vault.
-4. Run `python3 tools/configure.py --origin https://YOUR-HOST:8446`.
+4. Create `deploy/sites.txt` with your chosen DNS hostnames, one per line.
+   Run `python3 tools/configure.py --origin https://YOUR-HOST:8446 --sites deploy/sites.txt`.
+   The site list, generated rules and environment file are local and Git-ignored.
 5. Run `docker compose --project-directory deploy config --quiet`, then
    `docker compose --project-directory deploy up -d`.
 6. Trust the Caddy local CA on each client. Export its **public certificate** with
@@ -58,11 +60,16 @@ the button for that page visit. Navigation uses the same tab, preserving Back.
 
 ## Sites and operation
 
-The initial allowlist is Example publisher A, Example publisher B, Example publisher C, Example publisher D,
-and Example publisher E (including their `www` hosts). Live article extraction has been
-verified on the first two; the other three are configured, not certified.
-To add a site, update both `ALLOWED_DOMAINS` in `deploy/compose.yaml` and
-`deploy/rules.yaml`, then recreate the stack. Do not allow arbitrary destinations.
+No publisher list ships with this project. Each administrator supplies a private
+`deploy/sites.txt`. The setup tool generates the domain allowlist and matching
+solver rules together, adding `www` aliases to entries without that prefix.
+The same generic integration applies to every configured host. Site selection
+is deployment data; it is not encoded, hashed or hidden in the public source.
+
+To change sites, edit the private list, rerun the setup command, then run
+`docker compose --project-directory deploy up -d --force-recreate ladder`.
+An empty list is rejected, and Compose requires the generated environment file.
+Never commit generated configuration or enable arbitrary destinations.
 
 Only Caddy publishes a host port. Fetchers use an internal Docker network and
 Squid denies private/nonpublic destination addresses and unsafe ports. The API
@@ -83,7 +90,8 @@ systems bind clearance to additional browser characteristics and will still fail
 
 ## Development and evidence
 
-Run `npm ci`, `npx playwright install webkit`, then `npm test`. Tests use synthetic
+Run `npm ci`, `npx playwright install webkit`, then `npm test`. Run `python3 -m unittest discover -s tests -p '*_test.py'`
+for the private configuration generator. Tests use synthetic
 articles and cover negative detections, persistent walls, removal and navigation.
 See [VALIDATION.md](VALIDATION.md) for live and native iOS results and limitations.
 Do not commit credentials, captured articles, deployment addresses or browser profiles.

@@ -1031,7 +1031,7 @@ Readability.prototype = {
   },
 
   /***
-   * grabArticle - Using a Example publisher D of metrics (content score, classname, element types), find the content that is
+   * grabArticle - Using a range of metrics (content score, classname, element types), find the content that is
    *         most likely to be the stuff a user wants to read. Then return it wrapped up in a div.
    *
    * @param page a document to run upon. Needs to be a full document, complete with body.
@@ -2292,7 +2292,7 @@ Readability.prototype = {
   /**
    * Look for 'data' (as opposed to 'layout') tables, for which we use
    * similar checks as
-   * https://searchfox.org/mozilla-central/rev/snapshot/accessible/generic/TableAccessible.cpp#19
+   * https://searchfox.org/mozilla-central/source/accessible/generic/TableAccessible.cpp#19
    */
   _markDataTables(root) {
     var tables = root.getElementsByTagName("table");

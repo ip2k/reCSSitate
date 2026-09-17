@@ -13,11 +13,11 @@ services:
     restart: unless-stopped
     labels: {lan.project: recssitate, lan.session: production}
   ladder:
+    env_file: ./sites.env
     image: ghcr.io/everywall/ladder:v0.0.23@sha256:cf30c32ac046a5554a4e829f46546d68ed6056986ba5ba83c65a5a705828d5fe
     environment:
       RULESET: /config/rules.yaml
       FLARESOLVERR_HOST: http://flaresolverr:8191
-      ALLOWED_DOMAINS: 'site-a.example,www.site-a.example,site-b.example,www.site-b.example,site-c.example,www.site-c.example,site-d.example,www.site-d.example,site-e.example,www.site-e.example'
       ALLOWED_DOMAINS_RULESET: 'false'
       HTTP_TIMEOUT: '60'
       LOG_URLS: 'false'

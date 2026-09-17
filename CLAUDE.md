@@ -17,4 +17,4 @@ Use short-lived feature branches and no-ff merges. No unasked PRs, issues,
 comments or force pushes. Public release requires no private test artifacts.
 
 Last hygiene audit: 2026-09-16, initial release, 340 integration source/config
-lines (excluding vendored dependencies), source commit `initial release`. Next audit due after approximately 10,000 additional source lines.
+lines (excluding vendored dependencies). Next audit due after approximately 10,000 additional source lines.
