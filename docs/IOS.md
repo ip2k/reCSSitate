@@ -5,11 +5,16 @@ enable its Safari extension and allow access to your reader server and the sites
 where you want the rescue button. Open your reader's landing page in Safari and
 tap **Install reCSSitate userscript**. Seeing JavaScript source is expected.
 
-## 1. Open Userscripts
+## 1. Open Page Menu inside Safari (iOS 27)
 
-Open Safari's page/extension menu and choose **Userscripts**.
+Keep the script page open in the **Safari app**. Tap the **Page Menu** button
+on the **left side of the address/search field**: three horizontal lines with
+a shorter bottom line. Then choose **Userscripts** from that menu.
 
-<img src="../web/assets/ios-install/01-open-userscripts.png" alt="Arrow pointing to the Userscripts entry in Safari's extension menu." width="640">
+The address field may be at the top or bottom depending on your Safari layout.
+If the toolbar is hidden, tap the bottom of the screen to reveal it.
+
+<img src="../web/assets/ios-install/01-open-userscripts.png" alt="In Safari on iOS 27, tap the three-line Page Menu icon at the left of the address field, then choose Userscripts." width="640">
 
 ## 2. Tap the yellow install banner
 
@@ -44,3 +49,7 @@ from your own reader server and Userscripts has access to that server.
 These annotated illustrations are adapted from user-supplied screenshots.
 Code and deployment details have been omitted. Layout may vary by iOS and
 Userscripts version.
+
+The iOS 27 Page Menu icon and its location were checked against
+[Apple’s iOS 27 Safari guide](https://support.apple.com/guide/iphone/customize-your-safari-settings-iphb3100d149/27/ios/27).
+Step 1 illustrates the address field and menu choice; it is not a full-screen capture.
