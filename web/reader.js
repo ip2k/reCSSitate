@@ -4,6 +4,10 @@ const form = document.querySelector('#open');
 const input = document.querySelector('#url');
 const status = document.querySelector('#status');
 const frame = document.querySelector('#article');
+const authRow = document.querySelector('#auth-row');
+fetch('/auth.json', {cache:'no-store'}).then(response=>response.json()).then(config=>{
+  authRow.hidden=config.enabled!==true;
+}).catch(()=>{});
 let controller;
 const escape = s => String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 async function read(value) {
@@ -19,6 +23,7 @@ async function read(value) {
   const original=document.querySelector('#original');original.href=url.href;original.hidden=false;
   try {
     const response=await fetch('/api/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url.href}),signal:current.signal});
+    if(response.status===401)authRow.hidden=false;
     if(!response.ok)throw Error(response.status===401?'Sign in, then try again.':'This site could not be fetched. It may not be supported by this server.');
     const result=await response.json();
     if(controller!==current)return;

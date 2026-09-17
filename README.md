@@ -19,8 +19,9 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
 1. Clone this repository. Copy `deploy/.env.example` to `deploy/.env`.
 2. Set `READER_HOST` to the server's hostname or IPv4 address and `BIND_ADDRESS`
    to its LAN address. The default binds only localhost.
-3. Generate a bcrypt hash with `htpasswd -nB reader` (interactive password
-   prompt). Copy the hash after `reader:` into `READER_PASSWORD_HASH`, preserving
+3. Authentication defaults to off (`READER_AUTH_ENABLED=false`). To require a
+   login, set it to `true`, generate a bcrypt hash with `htpasswd -nB reader`,
+   and copy the hash after `reader:` into `READER_PASSWORD_HASH`, preserving
    the single quotes. Keep `.env` private and save the password in your vault.
 4. Create `deploy/sites.txt` with your chosen DNS hostnames, one per line.
    Run `python3 tools/configure.py --origin https://YOUR-HOST:8446 --sites deploy/sites.txt`.
@@ -33,8 +34,13 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
    full trust in Settings → General → About → Certificate Trust Settings.
    Follow the [iPhone certificate installation guide](docs/IOS-CERTIFICATE.md)
    for the download, installation, and trust steps.
-7. Open `https://YOUR-HOST:8446`, select **Sign in to the reader**, and sign in as
-   `reader` with the password you chose.
+7. Open `https://YOUR-HOST:8446` and paste an article URL. If authentication is
+   enabled, select **Sign in to the reader** and use the `reader` account.
+
+To change authentication later, update `deploy/.env` and run
+`docker compose --project-directory deploy up -d --force-recreate gateway`.
+The sign-in link follows the gateway's setting. Enabling authentication requires
+a valid password hash; invalid settings stop the gateway from starting.
 
 Use an existing trusted certificate instead of Caddy's local CA when appropriate.
 Never distribute the CA private key. Keep this service on your private network.
@@ -87,7 +93,7 @@ Never commit generated configuration or enable arbitrary destinations.
 
 Only Caddy publishes a host port. Fetchers use an internal Docker network and
 Squid denies private/nonpublic destination addresses and unsafe ports. The API
-requires authentication, limits request size, and strips reader credentials
+supports optional authentication, limits request size, and strips reader credentials
 before forwarding requests to Ladder. Article URLs travel in the browser's URL
 fragment and POST body. This is not an anonymity service: publishers and image
 hosts still observe network requests, and browser history retains source URLs.
