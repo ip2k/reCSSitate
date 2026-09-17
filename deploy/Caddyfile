@@ -12,7 +12,7 @@ https://{$READER_HOST:localhost}:8446 {
         Cache-Control no-store
         Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src https: data:; frame-src 'self' about:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     }
-    @private not path / /index.html /style.css /reader.js /vendor/* /recssitate.user.js
+    @private not path / /index.html /style.css /reader.js /vendor/* /assets/ios-install/* /recssitate.user.js
     basic_auth @private {
         reader {$READER_PASSWORD_HASH}
     }

@@ -52,6 +52,9 @@ read. Open **Install reCSSitate userscript** on the reader's landing page, then 
 the Userscripts extension menu to install it. The script uses only the manager's
 storage APIs. An unconfigured copy asks for your reader server when first tapped.
 
+See the [illustrated iPhone installation guide](docs/IOS.md) for the four taps
+from the script page to the installed confirmation.
+
 The detector checks for article text, an anti-adblock message, a large visible
 obstruction, and persistence for 2.5 seconds. Small support notices and cookie
 consent dialogs are intentionally left alone. It may miss unfamiliar markup or
