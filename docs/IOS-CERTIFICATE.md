@@ -5,10 +5,10 @@ Safari warns that the connection is not private. Installing the certificate and
 enabling SSL/TLS trust are **two separate steps**. Do this once on each device.
 If your reader already uses a publicly trusted certificate, skip this guide.
 
-The two annotated reference images below are adapted from Apple's published
-screenshots. They illustrate the relevant controls in an older iOS layout;
-they are **not captures of iOS 27**. Account information has been removed, and
-no deployment addresses or real certificate details are included.
+The images show the full screen of an **iPhone 17 Pro simulator running iOS 27**,
+with device frames and arrows added. A disposable **reCSSitate Demo CA** stands
+in for your server's certificate. Addresses and device identifiers are blacked
+out; no personal account or production certificate is shown.
 
 You need the **public root CA certificate** and the HTTPS reader address from
 the person who runs your server. Ask them to confirm the certificate's name and
@@ -25,13 +25,15 @@ message. This downloads the certificate; it does not install it yet.
 The download address and reader address may be different. Use the links your
 administrator provides. Do not install an example certificate from a tutorial.
 
+<img src="assets/ios-certificate/01-download.png" alt="Full iPhone screen in Safari, with an arrow pointing to Allow in the configuration-profile download prompt. The address is blacked out." width="720">
+
 ## 2. Open the downloaded profile in Settings
 
 Open **Settings**, then tap **Profile Downloaded** near the top. If that shortcut
 is absent, look under **General → VPN & Device Management** and select the
 downloaded profile.
 
-<img src="assets/ios-certificate/02-profile-downloaded.png" alt="Annotated Apple reference image: open Settings and tap the Profile Downloaded row." width="720">
+<img src="assets/ios-certificate/02-profile-downloaded.png" alt="Full iOS 27 Settings screen, with an arrow pointing to Profile Downloaded." width="720">
 
 Install promptly: iOS removes a downloaded profile after eight minutes if you
 have not installed it. If it disappeared, download it again.
@@ -48,10 +50,14 @@ when installation finishes. A local root may be described as not verified before
 you trust it; confirm its identity with your administrator rather than trusting
 an unfamiliar profile.
 
+<img src="assets/ios-certificate/03-install.png" alt="Full iPhone Install Profile screen for a demo certificate, with an arrow pointing to Install in the top-right corner." width="720">
+
 ## 4. Find Certificate Trust Settings
 
 In **Settings**, go to **General → About**, scroll to the bottom, then tap
 **Certificate Trust Settings**.
+
+<img src="assets/ios-certificate/04-about.png" alt="Full iPhone About screen, with the device identifier blacked out and an arrow pointing to Certificate Trust Settings near the bottom." width="720">
 
 ## 5. Enable full trust
 
@@ -59,7 +65,7 @@ Under **Enable Full Trust for Root Certificates**, turn on the switch for your
 reader's root certificate. Confirm the **Root Certificate** warning with
 **Continue**. Leave unrelated certificates alone.
 
-<img src="assets/ios-certificate/05-enable-trust.png" alt="Annotated Apple reference image: in Certificate Trust Settings, enable the switch for your own reader's root certificate. Certificate 1 and Certificate 2 are example names." width="720">
+<img src="assets/ios-certificate/05-enable-trust.png" alt="Full iPhone Certificate Trust Settings screen, with an arrow pointing to the enabled green switch for the demo root certificate. Enable your own reader's certificate." width="720">
 
 Caddy's default name commonly starts with **Caddy Local Authority**; your
 administrator may have chosen another name. If the certificate does not appear,
@@ -70,6 +76,8 @@ finish installing its profile in steps 2–3 first.
 Return to Safari and reopen your reader's **HTTPS** address. The certificate
 warning should be gone. Choose **Sign in to the reader** and enter the reader
 username and password supplied by your administrator.
+
+<img src="assets/ios-certificate/06-reader.png" alt="Full iPhone Safari screen showing the reader without a certificate warning, with an arrow pointing to Sign in to the reader. Addresses and bookmark code are blacked out." width="720">
 
 If a warning remains, verify that full trust is enabled and that you opened the
 exact hostname or IP address covered by the server certificate. Also check the
@@ -100,7 +108,6 @@ Management**, select its profile, and tap **Remove Profile**.
 - [Install a configuration profile](https://support.apple.com/en-ae/102400)
 - [Trust a manually installed certificate](https://support.apple.com/en-ie/102390)
 
-The illustrations are cropped and annotated adaptations of the screenshots in
-these Apple articles, with account details omitted. Apple's interface images
-remain Apple's property and are not covered by this project's MIT licence.
-Screen wording and layout can vary by iOS version.
+Screens were captured in a clean simulator, then annotated and framed for this
+guide. Apple's interface remains Apple's property and is not covered by this
+project's MIT licence. Screen wording and layout can vary by iOS version.
