@@ -24,7 +24,7 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
    the single quotes. Keep `.env` private and save the password in your vault.
 4. Create `deploy/sites.txt` with your chosen DNS hostnames, one per line.
    Run `python3 tools/configure.py --origin https://YOUR-HOST:8446 --sites deploy/sites.txt`.
-   The site list, generated rules and environment file are local and Git-ignored.
+   The site list and generated environment file are local and Git-ignored.
 5. Run `docker compose --project-directory deploy config --quiet`, then
    `docker compose --project-directory deploy up -d`.
 6. Trust the Caddy local CA on each client. Export its **public certificate** with
@@ -60,11 +60,17 @@ the button for that page visit. Navigation uses the same tab, preserving Back.
 
 ## Sites and operation
 
-No publisher list ships with this project. Each administrator supplies a private
-`deploy/sites.txt`. The setup tool generates the domain allowlist and matching
-solver rules together, adding `www` aliases to entries without that prefix.
-The same generic integration applies to every configured host. Site selection
-is deployment data; it is not encoded, hashed or hidden in the public source.
+The public `deploy/rules.default.yaml` applies the same solver and request settings
+to every hostname. Ladder uses suffix matching, and an empty suffix is its
+catch-all: no publisher names, encoded lists or publisher-specific partial matches
+are needed. The userscript also detects obstruction behavior rather than hostnames.
+This gives every configured site the same integration, including previously tested
+sites and others with similar overlays; success still depends on returned content.
+
+Fetch access is separate from matching. Each administrator supplies a private
+`deploy/sites.txt`; the setup tool generates its allowlist, adding `www` aliases
+to entries without that prefix. This prevents turning a reader into an unrestricted
+fetch service. Adding a site requires no change to the public matching rule.
 
 To change sites, edit the private list, rerun the setup command, then run
 `docker compose --project-directory deploy up -d --force-recreate ladder`.
@@ -91,7 +97,9 @@ systems bind clearance to additional browser characteristics and will still fail
 ## Development and evidence
 
 Run `npm ci`, `npx playwright install webkit`, then `npm test`. Run `python3 -m unittest discover -s tests -p '*_test.py'`
-for the private configuration generator. Tests use synthetic
+for the private configuration generator. On a Linux Docker host, run
+`python3 tests/generic_integration.py` to verify the catch-all rule using the
+actual pinned Ladder image and an isolated synthetic solver/article fixture. Tests use synthetic
 articles and cover negative detections, persistent walls, removal and navigation.
 See [VALIDATION.md](VALIDATION.md) for live and native iOS results and limitations.
 Do not commit credentials, captured articles, deployment addresses or browser profiles.

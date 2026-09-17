@@ -1,0 +1,9 @@
+# Ladder tests rule domains with strings.HasSuffix. An empty suffix matches
+# every hostname. This is a universal rule, not an encoded publisher list.
+# ALLOWED_DOMAINS remains a separate, private fetch-access control.
+- domains: ['']
+  useFlareSolverr: true
+  headers:
+    x-forwarded-for: none
+    referer: none
+    user-agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36'
