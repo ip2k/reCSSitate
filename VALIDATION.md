@@ -30,3 +30,12 @@ Site behavior changes with geography, experiments, cookies and article counts.
 Other configured publishers still need live extraction coverage.
 A working fetch is not a claim of full article completeness against a publisher's
 subscriber edition. No normal browser profiles were changed for these tests.
+
+## Generic matching verification
+
+The public catch-all rule was exercised in the pinned Ladder container on an
+isolated internal Docker network. Two unrelated synthetic hostnames both received
+solver cookies and the configured request headers, with no hostname-specific
+rule. The fixture rejects a missing cookie or wrong headers. This tests rule
+selection and integration, not challenge solving. Containers and the test network
+were removed afterwards. `tests/generic_integration.py` reproduces the test.

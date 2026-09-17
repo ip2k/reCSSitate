@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate local deployment assets from a private site list."""
 import argparse
-import json
 import re
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -27,16 +26,10 @@ def configure(origin, sites_file, root):
         sites.add(host)
     if not sites:
         raise ValueError('Provide at least one site; unrestricted fetching is not supported')
-    rules = []
     allowed = set()
     for site in sorted(sites):
         aliases = [] if site.startswith('www.') else ['www.' + site]
         allowed.update([site, *aliases])
-        rules.append({'domain': site, 'domains': aliases, 'useFlareSolverr': True,
-                      'headers': {'x-forwarded-for': 'none', 'referer': 'none',
-                                  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36'}})
-    # JSON is valid YAML and avoids a YAML dependency in the setup tool.
-    (root / 'deploy/rules.yaml').write_text(json.dumps(rules, indent=2) + '\n')
     (root / 'deploy/sites.env').write_text('ALLOWED_DOMAINS=' + ','.join(sorted(allowed)) + '\n')
     script = (root / 'userscript/recssitate.user.js').read_text()
     (root / 'web/recssitate.user.js').write_text(script.replace('__PAGE_RESCUE_ORIGIN__', f'https://{u.netloc}'))
@@ -51,4 +44,4 @@ if __name__ == '__main__':
         configure(args.origin, args.sites, Path(__file__).resolve().parent.parent)
     except ValueError as error:
         parser.error(str(error))
-    print('Generated local rules, allowlist and userscript; these files are excluded from Git.')
+    print('Generated local allowlist and userscript; these files are excluded from Git.')

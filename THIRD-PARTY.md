@@ -23,3 +23,7 @@ patch included here. No upstream issue or pull request has been submitted.
 
 Readability has comment-only edits to use a revision-independent source link and
 generic wording. Its executable code and licence notice are unchanged.
+
+Ladder uses prefix matching for its fetch allowlist rather than exact hostname
+equality. Treat it as a coarse access filter; the network proxy independently
+blocks private destinations. Exact host matching is another upstream candidate.

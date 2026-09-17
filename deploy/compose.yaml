@@ -26,7 +26,7 @@ services:
       HTTP_PROXY: http://egress:3128
       HTTPS_PROXY: http://egress:3128
       NO_PROXY: flaresolverr,localhost,127.0.0.1
-    volumes: ['./rules.yaml:/config/rules.yaml:ro']
+    volumes: ['./rules.default.yaml:/config/rules.yaml:ro']
     networks: [backend]
     depends_on: [flaresolverr, egress]
     mem_limit: 512m

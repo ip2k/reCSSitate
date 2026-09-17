@@ -1,5 +1,4 @@
 import importlib.util
-import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -19,15 +18,13 @@ class ConfigurationTests(unittest.TestCase):
         (self.root / 'userscript/recssitate.user.js').write_text("const server='__PAGE_RESCUE_ORIGIN__';")
         self.sites = self.root / 'deploy/sites.txt'
 
-    def test_rules_and_allowlist_agree_and_are_deterministic(self):
+    def test_allowlist_is_private_and_deterministic(self):
         self.sites.write_text('# Private selection\nnews.example\nwww.second.example\nnews.example\n')
         module.configure('https://reader.example:8446', self.sites, self.root)
-        rules = json.loads((self.root / 'deploy/rules.yaml').read_text())
-        hosts = {host for rule in rules for host in [rule['domain'], *rule['domains']]}
         env = (self.root / 'deploy/sites.env').read_text()
-        self.assertEqual(hosts, set(env.strip().split('=', 1)[1].split(',')))
+        hosts = set(env.strip().split('=', 1)[1].split(','))
         self.assertEqual(hosts, {'news.example', 'www.news.example', 'www.second.example'})
-        self.assertTrue(all(rule['useFlareSolverr'] for rule in rules))
+        self.assertFalse((self.root / 'deploy/rules.yaml').exists())
         module.configure('https://reader.example:8446', self.sites, self.root)
         self.assertEqual(env, (self.root / 'deploy/sites.env').read_text())
 
