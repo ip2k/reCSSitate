@@ -1,5 +1,8 @@
 # Install reCSSitate in Safari on iPhone
 
+If Safari warns about your reader's certificate, first follow the
+[iPhone certificate installation and trust guide](IOS-CERTIFICATE.md).
+
 After installing the [Userscripts app](https://github.com/quoid/userscripts),
 enable its Safari extension and allow access to your reader server and the sites
 where you want the rescue button. Open your reader's landing page in Safari and

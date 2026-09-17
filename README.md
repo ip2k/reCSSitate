@@ -31,6 +31,8 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
    `docker compose --project-directory deploy cp gateway:/data/caddy/pki/authorities/local/root.crt ./reader-ca.crt`.
    Install it using your device's certificate settings; iOS also requires enabling
    full trust in Settings → General → About → Certificate Trust Settings.
+   Follow the [iPhone certificate installation guide](docs/IOS-CERTIFICATE.md)
+   for the download, installation, and trust steps.
 7. Open `https://YOUR-HOST:8446`, select **Sign in to the reader**, and sign in as
    `reader` with the password you chose.
 
@@ -39,6 +41,9 @@ Never distribute the CA private key. Keep this service on your private network.
 The sample deployment does not configure a router or expose itself to the Internet.
 
 ## On iPhone and iPad
+
+If Safari shows a certificate warning for your local reader, complete the
+[certificate installation and trust guide](docs/IOS-CERTIFICATE.md) first.
 
 **Bookmarklet:** open the reader's landing page and tap **Copy bookmarklet**.
 Bookmark the page in Safari, then edit the bookmark and replace its address with
