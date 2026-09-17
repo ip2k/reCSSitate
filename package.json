@@ -1,0 +1,1 @@
+{"name":"recssitate","version":"0.2.0","private":true,"description":"A wall-triggered reader button and bookmarklet for a self-hosted Ladder service","scripts":{"test":"node --test tests/detection.test.cjs"},"devDependencies":{"playwright":"1.62.1"},"license":"MIT"}
