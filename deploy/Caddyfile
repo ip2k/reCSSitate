@@ -4,6 +4,15 @@
     auto_https disable_redirects
 
 }
+(auth_true) {
+    @private not path / /index.html /style.css /reader.js /vendor/* /assets/ios-install/* /recssitate.user.js /auth.json
+    basic_auth @private {
+        reader {$READER_PASSWORD_HASH}
+    }
+}
+(auth_false) {
+    # No authentication on a private-network deployment.
+}
 https://{$READER_HOST:localhost}:8446 {
     tls internal
     header {
@@ -12,12 +21,13 @@ https://{$READER_HOST:localhost}:8446 {
         Cache-Control no-store
         Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src https: data:; frame-src 'self' about:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     }
-    @private not path / /index.html /style.css /reader.js /vendor/* /assets/ios-install/* /recssitate.user.js
-    basic_auth @private {
-        reader {$READER_PASSWORD_HASH}
+    import auth_{$READER_AUTH_ENABLED:false}
+    handle /auth.json {
+        header Content-Type application/json
+        respond `{"enabled":{$READER_AUTH_ENABLED:false}}`
     }
     handle /signin {
-        redir / 303
+        redir * / 303
     }
     @api {
         path /api/

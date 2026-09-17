@@ -74,7 +74,8 @@ finish installing its profile in steps 2–3 first.
 ## 6. Reopen the reader
 
 Return to Safari and reopen your reader's **HTTPS** address. The certificate
-warning should be gone. Choose **Sign in to the reader** and enter the reader
+warning should be gone. Authentication is off by default. If your administrator
+enabled it, choose **Sign in to the reader** and enter the reader
 username and password supplied by your administrator.
 
 <img src="assets/ios-certificate/06-reader.png" alt="Full iPhone Safari screen showing the reader without a certificate warning, with an arrow pointing to Sign in to the reader. Addresses and bookmark code are blacked out." width="720">

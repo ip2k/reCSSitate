@@ -39,3 +39,21 @@ solver cookies and the configured request headers, with no hostname-specific
 rule. The fixture rejects a missing cookie or wrong headers. This tests rule
 selection and integration, not challenge solving. Containers and the test network
 were removed afterwards. `tests/generic_integration.py` reproduces the test.
+
+
+## Optional authentication — 2026-09-17
+
+Both the reusable Compose deployment and the separate LAN deployment default to
+authentication off. The standalone setting is `READER_AUTH_ENABLED`; enabling it
+requires a valid bcrypt hash. Existing credentials are stripped before proxying
+regardless of whether gateway authentication is enabled. The sign-in redirect
+now explicitly matches all requests before returning the root location.
+
+Disposable containers running the pinned Caddy image tested both authentication
+modes with missing, wrong and valid credentials. Missing hashes are accepted only
+when authentication is disabled; enabled authentication without a hash and an
+invalid boolean both fail configuration adaptation. The reader UI Playwright test
+verified sign-in visibility for both settings at phone width. Auth-free layouts
+were rendered and visually inspected at 390px and 1200px with no horizontal
+clipping or overlaps. The live LAN auth-status and sign-in routes passed verified
+HTTPS requests without credentials or authentication challenges.
