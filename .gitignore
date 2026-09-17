@@ -5,3 +5,9 @@ test-results/
 .DS_Store
 
 web/recssitate.user.js
+
+# Private deployment selection and generated rules
+deploy/sites.txt
+deploy/sites.env
+deploy/rules.yaml
+__pycache__/
