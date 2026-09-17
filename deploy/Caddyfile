@@ -1,0 +1,45 @@
+{
+    admin off
+    default_sni {$READER_HOST:localhost}
+    auto_https disable_redirects
+
+}
+https://{$READER_HOST:localhost}:8446 {
+    tls internal
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        Cache-Control no-store
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src https: data:; frame-src 'self' about:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    }
+    @private not path / /index.html /style.css /reader.js /vendor/* /recssitate.user.js
+    basic_auth @private {
+        reader {$READER_PASSWORD_HASH}
+    }
+    handle /signin {
+        redir / 303
+    }
+    @api {
+        path /api/
+        method POST
+    }
+    handle @api {
+        request_body {
+            max_size 16KB
+        }
+        rewrite * /api
+        reverse_proxy ladder:8080 {
+            header_up -Authorization
+            transport http {
+                response_header_timeout 85s
+            }
+        }
+    }
+    handle /api/* {
+        respond "Unsupported request" 405
+    }
+    handle {
+        root * /srv
+        file_server
+    }
+}

@@ -1,0 +1,61 @@
+services:
+  gateway:
+    image: caddy:2.11.2@sha256:25cdc846626b62d05f6b633b9b40c2c9f6ef89b515dc76133cefd920f7dbe562
+    environment:
+      READER_HOST: ${READER_HOST:-localhost}
+      READER_PASSWORD_HASH: ${READER_PASSWORD_HASH:?Set a bcrypt password hash in .env}
+    ports: ['${BIND_ADDRESS:-127.0.0.1}:8446:8446']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../web:/srv:ro
+      - caddy:/data
+    networks: [backend, outward]
+    restart: unless-stopped
+    labels: {lan.project: recssitate, lan.session: production}
+  ladder:
+    image: ghcr.io/everywall/ladder:v0.0.23@sha256:cf30c32ac046a5554a4e829f46546d68ed6056986ba5ba83c65a5a705828d5fe
+    environment:
+      RULESET: /config/rules.yaml
+      FLARESOLVERR_HOST: http://flaresolverr:8191
+      ALLOWED_DOMAINS: 'site-a.example,www.site-a.example,site-b.example,www.site-b.example,site-c.example,www.site-c.example,site-d.example,www.site-d.example,site-e.example,www.site-e.example'
+      ALLOWED_DOMAINS_RULESET: 'false'
+      HTTP_TIMEOUT: '60'
+      LOG_URLS: 'false'
+      EXPOSE_RULESET: 'false'
+      DISABLE_FORM: 'true'
+      HTTP_PROXY: http://egress:3128
+      HTTPS_PROXY: http://egress:3128
+      NO_PROXY: flaresolverr,localhost,127.0.0.1
+    volumes: ['./rules.yaml:/config/rules.yaml:ro']
+    networks: [backend]
+    depends_on: [flaresolverr, egress]
+    mem_limit: 512m
+    cpus: 1
+    restart: unless-stopped
+    labels: {lan.project: recssitate, lan.session: production}
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.5.2@sha256:c80ae007ce2ccdcd217a12426e4f039ef763ff90738c808d38810c3e59323767
+    environment:
+      PROXY_URL: http://egress:3128
+      LOG_LEVEL: warning
+      LOG_HTML: 'false'
+      TZ: UTC
+    networks: [backend]
+    shm_size: 256m
+    mem_limit: 2g
+    cpus: 2
+    restart: unless-stopped
+    labels: {lan.project: recssitate, lan.session: production}
+  egress:
+    image: ubuntu/squid@sha256:8fafd41d6ddceb295d26eea9938321d825ac5351c7e46cf6a8aa5d093b8ed1ce
+    volumes: ['./squid.conf:/etc/squid/squid.conf:ro']
+    networks: [backend, outward]
+    mem_limit: 256m
+    restart: unless-stopped
+    labels: {lan.project: recssitate, lan.session: production}
+networks:
+  backend:
+    internal: true
+  outward: {}
+volumes:
+  caddy: {}
