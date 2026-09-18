@@ -3,9 +3,12 @@ services:
     image: caddy:2.11.2@sha256:25cdc846626b62d05f6b633b9b40c2c9f6ef89b515dc76133cefd920f7dbe562
     environment:
       READER_HOST: ${READER_HOST:-localhost}
+      READER_SETUP_PORT: ${READER_SETUP_PORT:-8086}
       READER_AUTH_ENABLED: ${READER_AUTH_ENABLED:-false}
       READER_PASSWORD_HASH: ${READER_PASSWORD_HASH:-}
-    ports: ['${BIND_ADDRESS:-127.0.0.1}:8446:8446']
+    ports:
+      - '${BIND_ADDRESS:-127.0.0.1}:8446:8446'
+      - '${BIND_ADDRESS:-127.0.0.1}:${READER_SETUP_PORT:-8086}:8086'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ../web:/srv:ro

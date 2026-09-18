@@ -5,13 +5,48 @@
 
 }
 (auth_true) {
-    @private not path / /index.html /style.css /reader.js /vendor/* /assets/ios-install/* /recssitate.user.js /auth.json
+    @private not path / /index.html /style.css /reader.js /vendor/* /assets/ios-install/* /assets/ios-certificate/* /recssitate.user.js /auth.json /certificate.html /certificate.js /certificate.json /reader-ca.crt
     basic_auth @private {
         reader {$READER_PASSWORD_HASH}
     }
 }
 (auth_false) {
     # No authentication on a private-network deployment.
+}
+(certificate) {
+    handle /reader-ca.crt {
+        root * /data/caddy/pki/authorities/local
+        rewrite * /root.crt
+        header Content-Type application/x-x509-ca-cert
+        file_server
+    }
+    handle /certificate.json {
+        header Content-Type application/json
+        respond `{"reader_url":"https://{$READER_HOST:localhost}:8446/","bootstrap_url":"http://{$READER_HOST:localhost}:{$READER_SETUP_PORT:8086}/"}`
+    }
+}
+# Reachable before the device trusts HTTPS. This listener serves setup only.
+http://{$READER_HOST:localhost}:8086 {
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        Cache-Control no-store
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    }
+    import certificate
+    handle / {
+        root * /srv
+        rewrite * /certificate.html
+        file_server
+    }
+    @guide path /certificate.html /certificate.js /style.css /assets/ios-certificate/*
+    handle @guide {
+        root * /srv
+        file_server
+    }
+    handle {
+        respond "Not found" 404
+    }
 }
 https://{$READER_HOST:localhost}:8446 {
     tls internal
@@ -22,6 +57,7 @@ https://{$READER_HOST:localhost}:8446 {
         Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src https: data:; frame-src 'self' about:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     }
     import auth_{$READER_AUTH_ENABLED:false}
+    import certificate
     handle /auth.json {
         header Content-Type application/json
         respond `{"enabled":{$READER_AUTH_ENABLED:false}}`

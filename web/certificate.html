@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trust your reader — reCSSitate</title><link rel="stylesheet" href="/style.css"><script src="/certificate.js" defer></script></head>
+<body><main>
+<header><h1>Trust your reader</h1><p>Set up Safari on your iPhone, iPad or Mac.</p></header>
+<div class="certificate-note"><p>For readers using Caddy’s local certificate authority, install the certificate once per device, then enable full trust. Skip this if your reader already has a publicly trusted certificate.</p>
+<p><a class="action-link" href="/reader-ca.crt">Download this reader’s CA certificate</a></p>
+<p><a data-certificate-link="bootstrap_url" hidden>Open setup without an HTTPS warning</a></p></div>
+<p>Use the <strong>Safari app</strong> on your reader’s network. Confirm the certificate name and SHA-256 fingerprint with your administrator through a trusted channel before enabling trust. A trusted root can validate certificates for other sites too.</p>
+<p>The screenshots use a disposable demo certificate. Install the certificate from the button above, and look for <strong>your server’s certificate name</strong> in Settings.</p>
+<nav class="platform-links" aria-label="Choose your device"><a href="#iphone">iPhone / iPad instructions</a> · <a href="#mac">Mac instructions</a></nav>
+<h2 id="iphone">On iPhone or iPad</h2>
+<ol class="certificate-steps">
+<li><h2>Download in Safari</h2><p>Tap <a href="/reader-ca.crt">Download this reader’s CA certificate</a>, choose <strong>Allow</strong>, then <strong>Close</strong> on the Profile Downloaded message.</p><img src="/assets/ios-certificate/01-download.png" alt="Full iPhone screen: tap Allow on Safari’s profile download prompt." loading="lazy"></li>
+<li><h2>Open Settings</h2><p>Tap <strong>Profile Downloaded</strong>. If it is missing, go to <strong>General → VPN &amp; Device Management</strong>. Install within eight minutes; otherwise, download it again.</p><img src="/assets/ios-certificate/02-profile-downloaded.png" alt="Full iPhone Settings screen: tap Profile Downloaded." loading="lazy"></li>
+<li><h2>Install the certificate</h2><p>Check the certificate’s identity in <strong>More Details</strong>, then tap <strong>Install</strong>. Enter your iPhone unlock passcode if asked, confirm <strong>Install</strong>, then tap <strong>Done</strong>.</p><img src="/assets/ios-certificate/03-install.png" alt="Full iPhone Install Profile screen: tap Install in the top-right corner." loading="lazy"></li>
+<li><h2>Find the trust settings</h2><p>Go to <strong>Settings → General → About</strong>, scroll down, and tap <strong>Certificate Trust Settings</strong>.</p><img src="/assets/ios-certificate/04-about.png" alt="Full iPhone About screen: tap Certificate Trust Settings near the bottom." loading="lazy"></li>
+<li><h2>Enable full trust</h2><p>Turn on the switch for your reader’s root certificate under <strong>Enable Full Trust for Root Certificates</strong>. Tap <strong>Continue</strong> to confirm. Caddy’s default name usually begins with <strong>Caddy Local Authority</strong>.</p><img src="/assets/ios-certificate/05-enable-trust.png" alt="Full iPhone Certificate Trust Settings screen: enable the switch for your reader’s root certificate." loading="lazy"></li>
+<li><h2>Open the reader</h2><p><a data-certificate-link="reader_url" hidden>Open your HTTPS reader</a></p><p>Return to Safari and open the reader’s HTTPS address. The warning should be gone. Sign in only if your administrator enabled authentication; it is off by default.</p><img src="/assets/ios-certificate/06-reader.png" alt="Full iPhone Safari screen: the reader opens without a certificate warning. This example has optional sign-in enabled." loading="lazy"></li>
+</ol>
+<section id="mac"><h2>On a Mac</h2>
+<ol>
+<li><a href="/reader-ca.crt">Download this reader’s CA certificate</a> and save it in Downloads. Confirm its name and SHA-256 fingerprint with your administrator.</li>
+<li>Open <strong>Keychain Access</strong> using Spotlight (<strong>Command–Space</strong>). If macOS offers Passwords, choose <strong>Open Keychain Access</strong>.</li>
+<li>Select <strong>System</strong> in the sidebar. Choose <strong>File → Import Items…</strong> and open the downloaded certificate. Authenticate with your Mac administrator credentials if asked.</li>
+<li>In <strong>Certificates</strong>, double-click your imported root. Expand <strong>Trust</strong> and set <strong>When using this certificate</strong> to <strong>Always Trust</strong>.</li>
+<li>Close the certificate window to save and authenticate if prompted. Reopen the HTTPS reader in Safari; the warning should be gone.</li>
+</ol><p><a data-certificate-link="reader_url" hidden>Open your HTTPS reader</a></p>
+<p><a href="https://github.com/ip2k/reCSSitate/blob/main/docs/MACOS-CERTIFICATE.md" rel="noreferrer">Full macOS guide, verification and removal</a> · <a href="https://support.apple.com/guide/keychain-access/kyca11871/mac" rel="noreferrer">Apple’s Keychain Access instructions</a></p>
+</section>
+<h2>Still seeing a warning?</h2><p>Check that full trust is on and that the address matches the server certificate. A name mismatch or expired certificate needs a server fix. If the server’s CA changes, install and trust its new certificate.</p>
+<p>To remove a root later, open <strong>Settings → General → VPN &amp; Device Management</strong>, select its profile, and choose <strong>Remove Profile</strong>.</p>
+<p><a href="https://support.apple.com/en-us/102390" rel="noreferrer">Apple’s certificate trust instructions</a> · <a href="https://github.com/ip2k/reCSSitate/blob/main/docs/IOS-CERTIFICATE.md" rel="noreferrer">Guide on GitHub</a></p>
+</main></body></html>
