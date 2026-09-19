@@ -1,5 +1,7 @@
 # reCSSitate
 
+![The Rear Admiral](docs/assets/captain.png)
+
 A small, self-hosted reader for articles obscured by anti-adblock overlays.
 Choose a manual bookmarklet or an optional userscript that offers a **Read article**
 button after a large anti-adblock wall persists. Both open the same reader.
