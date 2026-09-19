@@ -1,6 +1,6 @@
 # reCSSitate
 
-![The Rear Admiral](docs/assets/captain.png)
+![The Rear Admiral](docs/assets/IMG_2441.jpeg)
 
 A small, self-hosted reader for articles obscured by anti-adblock overlays.
 Choose a manual bookmarklet or an optional userscript that offers a **Read article**
