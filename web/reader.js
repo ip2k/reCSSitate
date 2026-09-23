@@ -13,12 +13,20 @@ const escape = s => String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;
 // Ladder answers every fetch failure with HTTP 500 and a plain-text reason. Its
 // allowlist error also lists every configured site, so show only our own wording.
 async function failure(response,url) {
-  if(response.status===401)return 'Sign in, then try again.';
-  if(response.status===502||response.status===504)return 'The reader server did not respond. Check that its containers are running, then try again.';
+  if(response.status===401)return Error('Sign in, then try again.');
+  if(response.status===502||response.status===504)return Error('The reader server did not respond. Check that its containers are running, then try again.');
   const detail=await response.text().catch(()=>'');
-  if(detail.startsWith('domain not allowed'))return url.hostname+' is not on this reader’s site list. Add it to deploy/sites.txt, rerun tools/configure.py, then recreate the ladder container.';
-  if(/deadline exceeded|timeout/i.test(detail))return url.hostname+' did not respond in time. Try again or open the original article.';
-  return 'This site could not be fetched. It may not be supported by this server.';
+  if(detail.startsWith('domain not allowed'))return attempt(url.hostname+' is not on this reader’s site list. Add it to deploy/sites.txt, rerun tools/configure.py, then recreate the ladder container.','not-listed');
+  if(/deadline exceeded|timeout/i.test(detail))return attempt(url.hostname+' did not respond in time. Try again or open the original article.','timeout');
+  return attempt('This site could not be fetched. It may need a site-specific rule; the attempt was recorded.','fetch-error');
+}
+function attempt(message,outcome){return Object.assign(Error(message),{outcome});}
+// Record only the hostname and outcome, never the path, so tools/attempts.py can
+// flag sites that the generic rule cannot read. The reader works if this fails.
+function record(url,outcome,chars) {
+  const query=new URLSearchParams({host:url.hostname,outcome});
+  if(chars!==undefined)query.set('chars',String(chars));
+  fetch('/attempt?'+query,{method:'POST',keepalive:true}).catch(()=>{});
 }
 async function read(value) {
   let url;
@@ -34,19 +42,27 @@ async function read(value) {
   try {
     const response=await fetch('/api/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url.href}),signal:current.signal});
     if(response.status===401)authRow.hidden=false;
-    if(!response.ok)throw Error(await failure(response,url));
+    if(!response.ok)throw await failure(response,url);
     const result=await response.json();
     if(controller!==current)return;
     const doc=new DOMParser().parseFromString(result.body,'text/html');
     doc.querySelectorAll('script,iframe,object,embed,base').forEach(e=>e.remove());
     const base=doc.createElement('base');base.href=url.href;doc.head.prepend(base);
     const article=new Readability(doc).parse();
-    if(!article || article.textContent.trim().length<500 || /just a moment|access denied|checking your browser/i.test(article.title))throw Error('No readable article was returned. Try the original page or Safari Reader.');
+    const chars=article?article.textContent.trim().length:0;
+    if(article && /just a moment|access denied|checking your browser/i.test(article.title))throw Object.assign(attempt('The site answered with a challenge page. It may need a site-specific rule; the attempt was recorded.','challenge'),{chars});
+    if(chars<500)throw Object.assign(attempt('No readable article was returned. Try the original page or Safari Reader. The attempt was recorded.','short'),{chars});
+    record(url,'ok',chars);
     const body=DOMPurify.sanitize(article.content,{USE_PROFILES:{html:true},FORBID_TAGS:['style','form','input','button','textarea','select','iframe','video','audio','source'],FORBID_ATTR:['style','srcset'],ALLOW_DATA_ATTR:false});
     frame.srcdoc='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src https: data:; style-src &#39;unsafe-inline&#39;"><style>body{max-width:42rem;margin:auto;padding:22px;color:#192b38;background:#fff;font:19px/1.65 Georgia,serif;overflow-wrap:anywhere}h1{font:700 28px/1.2 system-ui}h2,h3{line-height:1.3}img{max-width:100%;height:auto}a{color:#175c91}pre{white-space:pre-wrap}figure{margin:20px 0}table{display:block;overflow:auto}</style><h1>'+escape(article.title)+'</h1><p>'+escape(article.byline)+'</p>'+body;
     frame.hidden=false;status.textContent='Article ready. Images and links may depend on the original site.';
     document.title=article.title+' — reCSSitate';
-  } catch(error) {if(controller!==current)return;status.textContent=error.name==='AbortError'?'The request timed out. Try again or open the original article.':error.message;}
+  } catch(error) {
+    if(controller!==current)return;
+    const timedOut=error.name==='AbortError';
+    if(timedOut||error.outcome)record(url,timedOut?'timeout':error.outcome,error.chars);
+    status.textContent=timedOut?'The request timed out. Try again or open the original article.':error.message;
+  }
   finally {clearTimeout(timer);if(controller===current)form.querySelector('button').disabled=false;}
 }
 form.addEventListener('submit',event=>{event.preventDefault();const next=new URLSearchParams({url:input.value});if(location.hash.slice(1)===next.toString())read(input.value);else location.hash=next;});

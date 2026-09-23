@@ -42,6 +42,7 @@ an outbound Squid proxy. Reserve approximately 3 GB RAM for the stack.
 4. Create `deploy/sites.txt` with your chosen DNS hostnames, one per line.
    Run `python3 tools/configure.py --origin https://YOUR-HOST:8446 --sites deploy/sites.txt`.
    The site list and generated environment file are local and Git-ignored.
+   To read any public site instead, see [Unlisted sites](#unlisted-sites-and-site-adapters).
 5. Run `docker compose --project-directory deploy config --quiet`, then
    `docker compose --project-directory deploy up -d`.
 6. In Safari, open `http://YOUR-HOST:8086/` for the illustrated certificate setup.
@@ -115,9 +116,42 @@ to entries without that prefix. This prevents turning a reader into an unrestric
 fetch service. Adding a site requires no change to the public matching rule.
 
 To change sites, edit the private list, rerun the setup command, then run
-`docker compose --project-directory deploy up -d --force-recreate ladder`.
+`docker compose --project-directory deploy up -d --force-recreate gateway ladder`.
 An empty list is rejected, and Compose requires the generated environment file.
-Never commit generated configuration or enable arbitrary destinations.
+Never commit generated configuration.
+
+### Unlisted sites and site adapters
+
+**Open mode** sends every public site through the same generic rule, instead of
+refusing sites missing from `deploy/sites.txt`. It turns the reader into a
+fetcher for any public page, so it requires authentication: set
+`READER_AUTH_ENABLED=true` first, then run
+`python3 tools/configure.py --origin https://YOUR-HOST:8446 --open` (add
+`--sites deploy/sites.txt` to keep marking your known sites in the summary below).
+The setup tool refuses `--open` without authentication, and the gateway refuses
+to start if authentication is later turned off. Squid still blocks private
+addresses and ports other than 80 and 443.
+
+**Attempt log.** After each read, the reader reports the site's hostname and an
+outcome to the gateway: `ok`, `short` (too little text), `challenge` (a bot check
+was returned), `fetch-error`, `timeout` or `not-listed`. The article path and
+full URL are never sent. The gateway writes these lines, without client
+addresses or headers, to `deploy/attempts/attempts.log` (rolled at 5 MiB, four
+files kept) and to its container log. Nothing else is logged. Delete the
+directory to clear the history.
+
+**Flagging sites that need an adapter.** Run `python3 tools/attempts.py` to
+summarise the log. A site with two or more unreadable attempts (`short`,
+`challenge` or `fetch-error`) and no successful one is flagged **needs adapter**.
+If it already has an adapter it is flagged **adapter failing**. Use
+`--flagged` to list only those and `--json` for scripts. Sites refused by the
+site list appear as **requested**.
+
+**Adapters** are private Ladder rules for one site, in the Git-ignored
+`deploy/adapters.yaml` (same format as `rules.default.yaml`, but naming the
+site's domains). The setup tool places them ahead of the catch-all rule, because
+Ladder uses the first rule that matches. Rerun the setup command and recreate
+`ladder` after editing them. The generic rule still handles every other site.
 
 Only Caddy publishes host ports (HTTPS reader and HTTP certificate setup).
 Fetchers use an internal Docker network and
@@ -128,8 +162,8 @@ fragment and POST body. This is not an anonymity service: publishers and image
 hosts still observe network requests, and browser history retains source URLs.
 
 The rendered article cannot execute publisher scripts. Images may load from the
-publisher; formatting, interactive embeds and some links may be lost. No archive
-history or permanent article cache is maintained. FlareSolverr uses a server-side
+publisher; formatting, interactive embeds and some links may be lost. No article
+archive or cache is maintained; the attempt log above holds hostnames only. FlareSolverr uses a server-side
 Chromium identity, even when the reader is opened on an iPhone.
 
 Ladder v0.0.23 uses FlareSolverr's cookies and then performs its own fetch; it does
@@ -140,7 +174,8 @@ systems bind clearance to additional browser characteristics and will still fail
 ## Development and evidence
 
 Run `npm ci`, `npx playwright install webkit`, then `npm test`. Run `python3 -m unittest discover -s tests -p '*_test.py'`
-for the private configuration generator. On a Linux Docker host, run
+for the private configuration generator and the attempt summary. `tests/attempts_gateway.py`
+checks the attempt log and the open-mode guard in the pinned Caddy image. On a Linux Docker host, run
 `python3 tests/certificate_gateway.py` to verify the actual Caddy download, TLS
 chain, setup-only HTTP routes and optional authentication. Also run
 `python3 tests/generic_integration.py` to verify the catch-all rule using the

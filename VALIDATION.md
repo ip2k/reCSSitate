@@ -57,3 +57,18 @@ verified sign-in visibility for both settings at phone width. Auth-free layouts
 were rendered and visually inspected at 390px and 1200px with no horizontal
 clipping or overlaps. The live LAN auth-status and sign-in routes passed verified
 HTTPS requests without credentials or authentication challenges.
+
+## Unlisted sites and attempt log — 2026-09-22
+
+The generic-rule integration test now runs a second pinned Ladder container with
+the empty `ALLOWED_DOMAINS` that `tools/configure.py --open` generates. A hostname
+refused under the site list was read by the catch-all rule in open mode. On an
+isolated Linux Docker host, the pinned Caddy image validated only the open-mode and
+authentication pairs false/false, false/true and true/true, and rejected open mode
+without authentication and invalid values. A well-formed attempt was written to the
+file and container logs with no client address or header; malformed or GET
+attempts returned 400 and every other request was left unlogged. Playwright
+tests at phone width covered all six outcomes, and a check confirmed the article
+path never leaves the browser. Compose validated in both site-list and open
+modes. No live publisher was fetched for these tests; whether a particular site
+needs an adapter is only learned from its recorded attempts.
