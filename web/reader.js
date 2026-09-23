@@ -10,6 +10,16 @@ fetch('/auth.json', {cache:'no-store'}).then(response=>response.json()).then(con
 }).catch(()=>{});
 let controller;
 const escape = s => String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+// Ladder answers every fetch failure with HTTP 500 and a plain-text reason. Its
+// allowlist error also lists every configured site, so show only our own wording.
+async function failure(response,url) {
+  if(response.status===401)return 'Sign in, then try again.';
+  if(response.status===502||response.status===504)return 'The reader server did not respond. Check that its containers are running, then try again.';
+  const detail=await response.text().catch(()=>'');
+  if(detail.startsWith('domain not allowed'))return url.hostname+' is not on this reader’s site list. Add it to deploy/sites.txt, rerun tools/configure.py, then recreate the ladder container.';
+  if(/deadline exceeded|timeout/i.test(detail))return url.hostname+' did not respond in time. Try again or open the original article.';
+  return 'This site could not be fetched. It may not be supported by this server.';
+}
 async function read(value) {
   let url;
   try {url = new URL(value);if(url.protocol !== 'https:' || url.username || url.password) throw Error();}
@@ -24,7 +34,7 @@ async function read(value) {
   try {
     const response=await fetch('/api/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url.href}),signal:current.signal});
     if(response.status===401)authRow.hidden=false;
-    if(!response.ok)throw Error(response.status===401?'Sign in, then try again.':'This site could not be fetched. It may not be supported by this server.');
+    if(!response.ok)throw Error(await failure(response,url));
     const result=await response.json();
     if(controller!==current)return;
     const doc=new DOMParser().parseFromString(result.body,'text/html');
