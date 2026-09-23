@@ -10,4 +10,7 @@ web/recssitate.user.js
 deploy/sites.txt
 deploy/sites.env
 deploy/rules.yaml
+deploy/adapters.yaml
+# Hostname and outcome of each reader attempt
+deploy/attempts/
 __pycache__/

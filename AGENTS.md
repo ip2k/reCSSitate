@@ -5,6 +5,10 @@ Keep deployment addresses, credentials, browsing captures and local test outputs
 out of this repository. The LAN deployment belongs in lan-compute/ansible.
 Owner decision 2026-09-17: authentication is optional and defaults to off. Keep
 `READER_AUTH_ENABLED` configurable and show the sign-in link only when enabled.
+Owner decision 2026-09-22: unlisted sites may use the generic rule only in open
+mode, which requires authentication (the gateway refuses to start otherwise). The
+reader records hostname and outcome per attempt, both to a file and to the
+container log for Grafana; `tools/attempts.py` flags sites that need an adapter.
 
 Approved skills inherited from the user's request: browser-automation and
 lan-compute. The user requested reading oss-contributions; use it before any
